@@ -27,8 +27,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define _GNU_SOURCE
-
 #include <yara/dex.h>
 
 #include <yara/modules.h>
@@ -775,8 +773,8 @@ void dex_parse(
         "string_ids[%i].offset", i);
 
     set_integer(
-        yr_le32toh(string_id_item->string_data_offset), dex->object,
-        "string_ids[%i].size", value);
+        value, dex->object,
+        "string_ids[%i].size", i);
 
     set_sized_string(
         (const char*) ((dex->data + yr_le32toh(string_id_item->string_data_offset) + 1)),

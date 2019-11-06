@@ -1,4 +1,4 @@
-AC_INIT([yara], [3.10.0], [vmalvarez@virustotal.com])
+AC_INIT([yara], [3.11.0], [vmalvarez@virustotal.com])
 
 AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([yara.c])
@@ -56,6 +56,7 @@ case $host_os in
             jemalloc_prefix= ;;
     openbsd*)
             CFLAGS="$CFLAGS -DUSE_OPENBSD_PROC"
+            CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
             posix=true
             proc_interface=openbsd
             jemalloc_prefix= ;;
