@@ -92,11 +92,15 @@ void dotnet_parse_guid(
   char guid[37];
   int i = 0;
 
-  const uint8_t* guid_offset = pe->data + metadata_root + yr_le32toh(guid_header->Offset);
+  const uint8_t* guid_offset = pe->data + \
+      metadata_root + yr_le32toh(guid_header->Offset);
+
   DWORD guid_size = yr_le32toh(guid_header->Size);
 
-  // Parse GUIDs if we have them.
-  // GUIDs are 16 bytes each.
+  // Limit the number of GUIDs to 16.
+  guid_size =  yr_min(guid_size, 256);
+
+  // Parse GUIDs if we have them. GUIDs are 16 bytes each.
   while (guid_size >= 16 && fits_in_pe(pe, guid_offset, 16))
   {
     sprintf(guid, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -118,6 +122,7 @@ void dotnet_parse_guid(
 
     i++;
     guid_size -= 16;
+    guid_offset += 16;
   }
 
   set_integer(i, pe->object, "number_of_guids");
@@ -1012,6 +1017,9 @@ void dotnet_parse_tilde_2(
         {
           moduleref_table = (PMODULEREF_TABLE) row_ptr;
 
+          if (!struct_fits_in_pe(pe, moduleref_table, MODULEREF_TABLE))
+            break;
+
           name = pe_get_dotnet_string(pe,
               string_offset,
               DOTNET_STRING_INDEX(moduleref_table->Name));
@@ -1061,7 +1069,11 @@ void dotnet_parse_tilde_2(
         {
           fieldrva_table = (PFIELDRVA_TABLE) row_ptr;
 
+          if (!struct_fits_in_pe(pe, fieldrva_table, FIELDRVA_TABLE))
+            break;
+
           field_offset = pe_rva_to_offset(pe, fieldrva_table->RVA);
+
           if (field_offset >= 0)
           {
             set_integer(field_offset, pe->object, "field_offsets[%i]", counter);
@@ -1278,6 +1290,7 @@ void dotnet_parse_tilde_2(
         // it would give an inaccurate count in that case.
         counter = 0;
         row_ptr = table_offset;
+
         // First DWORD is the offset.
         for (i = 0; i < num_rows; i++)
         {
@@ -1363,7 +1376,7 @@ void dotnet_parse_tilde_2(
 
       case BIT_METHODSPEC:
         row_count = max_rows(2,
-            yr_le32toh(rows.methoddef), 
+            yr_le32toh(rows.methoddef),
             yr_le32toh(rows.memberref));
 
         if (row_count > (0xFFFF >> 0x01))
