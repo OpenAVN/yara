@@ -1,4 +1,4 @@
-AC_INIT([yara], [3.11.0], [vmalvarez@virustotal.com])
+AC_INIT([yara], [4.0.1], [vmalvarez@virustotal.com])
 
 AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([yara.c])
@@ -111,7 +111,7 @@ AC_ARG_ENABLE([profiling],
   [AS_HELP_STRING([--enable-profiling], [enable rules profiling support])],
   [if test x$enableval = xyes; then
     profiling_enabled=true
-    CFLAGS="$CFLAGS -DPROFILING_ENABLED"
+    CFLAGS="$CFLAGS -DYR_PROFILING_ENABLED"
   fi])
 
 AC_ARG_ENABLE([cuckoo],

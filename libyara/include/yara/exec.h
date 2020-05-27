@@ -36,8 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <yara/rules.h>
 
 
-#define UNDEFINED           0xFFFABADAFABADAFFLL
-#define IS_UNDEFINED(x)     ((size_t)(x) == (size_t) UNDEFINED)
+#define YR_UNDEFINED           0xFFFABADAFABADAFFLL
+#define IS_UNDEFINED(x)     ((size_t)(x) == (size_t) YR_UNDEFINED)
 
 #define OP_ERROR          0
 #define OP_HALT           255
@@ -100,6 +100,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define OP_ITER_START_DICT         55
 #define OP_ITER_START_INT_RANGE    56
 #define OP_ITER_START_INT_ENUM     57
+#define OP_JZ                      58
+#define OP_JZ_P                    59
 
 
 #define _OP_EQ            0
@@ -172,7 +174,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #define OPERATION(operator, op1, op2) \
-    (IS_UNDEFINED(op1) || IS_UNDEFINED(op2)) ? (UNDEFINED) : (op1 operator op2)
+    (IS_UNDEFINED(op1) || IS_UNDEFINED(op2)) ? (YR_UNDEFINED) : (op1 operator op2)
 
 
 #define COMPARISON(operator, op1, op2) \
