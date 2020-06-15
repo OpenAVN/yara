@@ -897,7 +897,13 @@ int yr_execute_code(
 
         r1.o = yr_object_lookup_field(r1.o, identifier);
 
-        assert(r1.o != NULL);
+        if (r1.o == NULL)
+        {
+          result = ERROR_INVALID_FIELD_NAME;
+          stop = true;
+          break;
+        }
+
         push(r1);
         break;
 
@@ -1657,7 +1663,7 @@ int yr_execute_code(
     // Check for timeout every 100 instruction cycles. If timeout == 0 it means
     // no timeout at all.
 
-    if (context->timeout > 0L && ++cycle == 100)
+    if (context->timeout > 0ULL && ++cycle == 100)
     {
       elapsed_time = yr_stopwatch_elapsed_ns(&context->stopwatch);
 

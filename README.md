@@ -10,7 +10,7 @@
 YARA is a tool aimed at (but not limited to) helping malware researchers to
 identify and classify malware samples. With YARA you can create descriptions of
 malware families (or whatever you want to describe) based on textual or binary
-patterns. Each description, a.k.a rule, consists of a set of strings and a
+patterns. Each description, a.k.a. rule, consists of a set of strings and a
 boolean expression which determine its logic. Let's see an example:
 
 ```yara
@@ -117,6 +117,7 @@ awesome list of [YARA-related stuff](https://github.com/InQuest/awesome-yara).
 * [ThreatConnect](https://www.threatconnect.com/)
 * [ThreatStream, Inc.](http://threatstream.com)
 * [Thug](https://github.com/buffer/thug)
+* [TouchWeb](https://www.touchweb.fr)
 * [Trend Micro](http://www.trendmicro.com)
 * [VirusTotal Intelligence](https://www.virustotal.com/intelligence/)
 * [VMRay](https://www.vmray.com/)
