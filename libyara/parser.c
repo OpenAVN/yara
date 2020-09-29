@@ -247,6 +247,49 @@ int yr_parser_emit_pushes_for_strings(
 }
 
 
+int yr_parser_emit_push_const(
+    yyscan_t yyscanner,
+    uint64_t argument)
+{
+  uint64_t u = (uint64_t)argument;
+  uint8_t buf[9];
+  int bufsz = 1;
+  if (u == YR_UNDEFINED)
+  {
+    buf[0] = OP_PUSH_U;
+  }
+  else if (u <= 0xff)
+  {
+    buf[0] = OP_PUSH_8;
+    bufsz += sizeof(uint8_t);
+    buf[1] = (uint8_t)argument;
+  }
+  else if (u <= 0xffff)
+  {
+    buf[0] = OP_PUSH_16;
+    bufsz += sizeof(uint16_t);
+    *((uint16_t*)(buf+1)) = (uint16_t)argument;
+  }
+  else if (u <= 0xffffffff)
+  {
+    buf[0] = OP_PUSH_32;
+    bufsz += sizeof(uint32_t);
+    *((uint32_t*)(buf+1)) = (uint32_t)argument;
+  }
+  else {
+    buf[0] = OP_PUSH;
+    bufsz += sizeof(uint64_t);
+    *((uint64_t*)(buf+1)) = (uint64_t)argument;
+  }
+  return yr_arena_write_data(
+      yyget_extra(yyscanner)->arena,
+      YR_CODE_SECTION,
+      buf,
+      bufsz,
+      NULL);
+}
+
+
 int yr_parser_check_types(
     YR_COMPILER* compiler,
     YR_OBJECT_FUNCTION* function,
@@ -383,11 +426,8 @@ static int _yr_parser_write_string(
 
   YR_ARENA_REF ref;
 
-  FAIL_ON_ERROR(yr_arena_write_string(
-      compiler->arena,
-      YR_SZ_POOL,
-      identifier,
-      &ref));
+  FAIL_ON_ERROR(_yr_compiler_store_string(
+      compiler, identifier, &ref));
 
   string->identifier = (const char*) yr_arena_ref_to_ptr(
       compiler->arena, &ref);
@@ -429,9 +469,8 @@ static int _yr_parser_write_string(
 
   if (modifier.flags & STRING_FLAGS_LITERAL)
   {
-    result = yr_arena_write_data(
-        compiler->arena,
-        YR_SZ_POOL,
+    result = _yr_compiler_store_data(
+        compiler,
         literal_string->c_string,
         literal_string->length + 1,   // +1 to include terminating NULL
         &ref);
@@ -890,9 +929,8 @@ int yr_parser_reduce_rule_declaration_phase_1(
 
   YR_ARENA_REF ref;
 
-  FAIL_ON_ERROR(yr_arena_write_string(
-      compiler->arena,
-      YR_SZ_POOL,
+  FAIL_ON_ERROR(_yr_compiler_store_string(
+      compiler,
       identifier,
       &ref));
 
@@ -1154,9 +1192,8 @@ int yr_parser_reduce_meta_declaration(
   meta->type = type;
   meta->integer = integer;
 
-  FAIL_ON_ERROR(yr_arena_write_string(
-      compiler->arena,
-      YR_SZ_POOL,
+  FAIL_ON_ERROR(_yr_compiler_store_string(
+      compiler,
       identifier,
       &ref));
 
@@ -1164,9 +1201,8 @@ int yr_parser_reduce_meta_declaration(
 
   if (string != NULL)
   {
-    FAIL_ON_ERROR(yr_arena_write_string(
-        compiler->arena,
-        YR_SZ_POOL,
+    FAIL_ON_ERROR(_yr_compiler_store_string(
+        compiler,
         string,
         &ref));
 
@@ -1249,9 +1285,8 @@ int yr_parser_reduce_import(
   if (result != ERROR_SUCCESS)
     return result;
 
-  FAIL_ON_ERROR(yr_arena_write_string(
-      compiler->arena,
-      YR_SZ_POOL,
+  FAIL_ON_ERROR(_yr_compiler_store_string(
+      compiler,
       module_name->c_string,
       &ref));
 
